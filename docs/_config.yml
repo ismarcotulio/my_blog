@@ -22,7 +22,7 @@ title: Marco Tulio's Blog
 email: mruizq@unah.hn
 description: Bienvenido a mi blog!
 baseurl: /my_blog # the subpath of your site, e.g. /blog
-url: martulioruiz.github.io # the base hostname & protocol for your site, e.g. http://example.com
+url: https://martulioruiz.github.io # the base hostname & protocol for your site, e.g. http://example.com
 #url: "" # the base hostname & protocol for your site, e.g. http://example.com
 #baseurl: "" # the subpath of your site, e.g. /blog
 twitter_username: MarcoTulio_Ruiz
