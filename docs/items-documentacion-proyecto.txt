@@ -1,13 +1,14 @@
 INTRODUCCION
 - Items Seccion de AOSP.
     - Definicion Sistema Operativo Android.(listo)
-    - Definicion AOSP.(en proceso)
-    - Definir la diferencia entre emulacion y virtualizacion.
-    - Arquitectura de dispositivo android.
-    - Tipos de dispositivos AOSP.
-    - Tipos de emulaciones.
+    - Definicion AOSP.(listo)
+    - Tipos de dispositivos AOSP. (listo)
+    - Introducir el proceso de compilacion en AOSP (listo).
+    - Tipos de emulaciones.(en proceso)
+    - integracion continua de Android.(en proceso)
 
 - Items Seccion de virtualizacion.
+    - Definir la diferencia entre emulacion y virtualizacion.
     - Definir que es virtualizacion por plataforma.
     - Definir que es KVM.
     - Definir que es el kernel de Linux.
