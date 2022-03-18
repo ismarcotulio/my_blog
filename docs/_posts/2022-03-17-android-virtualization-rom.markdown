@@ -35,7 +35,7 @@ categories: virtualization android
 <h4>Tipos de Emuladores</h4>
 <p>Actualmente en AOSP destacan dos formas de emular dispositivos android; La forma mas comun es por medio de un Emulador Android de Dispositivos Virtuales (AVD). Android Emulator nos permite ejecutar emulaciones de dispositivos Android en máquinas con Windows, macOS o Linux. El emulador de Android ejecuta el sistema operativo Android en una máquina virtual llamada dispositivo virtual de Android (AVD). El AVD contiene una pila completa de software de Android y se ejecuta como si estuviera en un dispositivo físico. <a href="https://source.android.com/setup/create/avd">[3]</a></p>
 <p style="text-align:center;">Figura 1</p>
-<img src="/assets/emulator-design.png" style="display: block; margin-left: auto; margin-right: auto; width: 50%;">
+<img src="https://raw.githubusercontent.com/martulioruiz/my_blog/main/docs/assets/emulator-design.png" style="display: block; margin-left: auto; margin-right: auto; width: 50%;">
 <p style="text-align:center; "><i>Nota. Arquitectura AVD, (s. f.). Android Open Source Project.</i></p>
 <br><br>
 <h2 style="text-align:center;">BIBLIOGRAFIAS</h2>
