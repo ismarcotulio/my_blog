@@ -8,8 +8,8 @@ INTRODUCCION
     - integracion continua de Android.(listo)
 
 - Items Seccion de virtualizacion.
-    - Definir la diferencia entre emulacion y virtualizacion.
-    - Definir que es virtualizacion por plataforma.
-    - Definir que es KVM.
-    - Definir que es el kernel de Linux.
-    - Definir que es un hipervisor
+    - Definir la diferencia entre emulacion y virtualizacion. (listo)
+    - Definir que es un hipervisor (listo)
+    - Definir que es KVM.(listo)
+    - Definir que es el kernel de Linux.(listo)
+   
