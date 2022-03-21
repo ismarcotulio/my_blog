@@ -4,8 +4,8 @@ INTRODUCCION
     - Definicion AOSP.(listo)
     - Tipos de dispositivos AOSP. (listo)
     - Introducir el proceso de compilacion en AOSP (listo).
-    - Tipos de emulaciones.(en proceso)
-    - integracion continua de Android.(en proceso)
+    - Tipos de emulaciones.(listo)
+    - integracion continua de Android.(listo)
 
 - Items Seccion de virtualizacion.
     - Definir la diferencia entre emulacion y virtualizacion.
