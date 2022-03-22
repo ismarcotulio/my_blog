@@ -12,4 +12,12 @@ INTRODUCCION
     - Definir que es un hipervisor (listo)
     - Definir que es KVM.(listo)
     - Definir que es el kernel de Linux.(listo)
+
+PROYECTO
+    - Definicion del proyecto. (listo)
+    - Metodologia.
+- Seccion de Preparacion de Entorno.
+    - Servidor para el compilado de dispositivos.
+    - Host principal para la emulacion de dispositivos.
+
    
