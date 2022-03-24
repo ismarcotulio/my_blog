@@ -167,8 +167,45 @@ m -j24
 ```
 <br><br>
 <h3>Emulación de Dispositivo Virtual Cuttlefish</h3>
-<p style="text-align:justify;">Guia aqui</p><br>
+<p style="text-align:justify;">En esta sección se encuentran los pasos a seguir para preparar un entorno (Host) que permita emular un dispositivo cuttlefish (Guest). Es recomendable que el compilado y la emulación se realicen en entornos diferentes. En el caso del entorno de simulación, se comprobó después de algunas pruebas que es problemático utilizar máquinas virtuales por el tema de virtualización anidada. Teniendo en cuenta lo anterior, se recomienda que el host sea un Sistema instalado directamente en disco del ordenador físico. Tambien se incluyen hallazgos y opiniones del equipo de sistemas asi como conceptos que se consideran relevantes. Es importante mencionar que muchos de los pasos que se mostraran a continuacion se pueden encontrar en la documentacion oficial de Google Source <a href="https://android.googlesource.com/device/google/cuttlefish/">[10]</a> y en la documentacion oficial de Github <a href="https://github.com/google/android-cuttlefish/blob/main/BUILDING.md">[11]</a>.</p><br>
 
+<h4>Entorno de trabajo</h4>
+<p style="text-align:justify;">En este caso a diferencia del entorno de compilacion es viable utilizar computadoras personales. A continuacion se mencionan las especificaciones de uno de los entornos cuya emulacion resulto exitosa:</p>
+<ul>
+<li>Sistema Operativo Debian 11 Bullseye.</li>
+<li>8 GB de RAM.</li>
+<li>Arquitectura 64 bits x86.</li>
+<li>Tarjeta Grafica Nvidia de 2GB.</li>
+<li>Procesador Intel Core i5 cuarta generacion.</li>
+</ul>
+<p style="text-align:justify;">Es recomendable utilizar como Host un ordenador con la ultima version de la distribución Debian de Linux como Sistema Operativo. Esto debido a que las versiones de algunas dependencias de "Cuttlefish-Common" son con base al gestor de paquetes de Debian. Para estos paquetes en específico el gestor de paquetes de Debian cuenta con versiones mas actualizadas en comparación a otras distribuciones de Linux, como por ejemplo, ubuntu.</p>
+<br>
+<h4>Permisos en Debian</h4>
+<p style="text-align:justify;">Debido a la seguridad en Debian, es probable que de entrada no se le permita instalar paquetes a su usuario normal. También al intentar instalar los paquetes con usuario root, es decir, utilizando "sudo" antes de cualquier comando o directamente con el comando "su" es probable que se le pida ingresar la contraseña Unix, la cual, no es la misma que la contraseña de su usuario root. Teniendo en cuenta lo anterior, se recomienda cambiar su contraseña Unix y también agregar a su usuario normal al grupo sudoers.</p>
+
+<p style="text-align:justify;">Para cambiar su contraseña Unix, lo primero es acceder como usuario root ya sea desde la terminal (utilizando el comando su) o desde el inicio de sesión de Debian. Estando como usuario root bastará con utilizar el comando "passwd" en la terminal y posteriormente se le pedirá que ingrese la nueva contraseña Unix.</p>
+
+<p style="text-align:justify;">Para agregar su usuario normal al grupo sudoers puede utilizar el siguiente comando:</p>
+```shell
+sudo usermod -aG sudo $USER
+```
+<p>Si por alguna razón el comando anterior no funciona, puede agregar a su usuario de forma manual utilizando un editor de texto como vim o nano y escribir al final del archivo <code>miUsuario  ALL=(ALL) NOPASSWD:ALL
+</code>:</p>
+```shell
+sudo nano /etc/sudoers.d
+```
+<br>
+<h4>Artefactos del dispositivo</h4>
+<p style="text-align:justify;">La palabra "Artefactos" es utilizada para referirse a los archivos resultantes de la compilación de un Sistema Android. Estos pueden ser imágenes, makefiles o herramientas necesarias para correr emuladores. Estos artefactos se pueden obtener de 2 formas. La primera es al compilar un Sistema o dispositivo Android por medio de algún repositorio AOSP; La segunda es por medio de "Android CI".</p>
+<p style="text-align:justify;">Como se mencionó anteriormente, en nuestro caso se utilizó Android CI únicamente para encontrar la rama y dispositivo más estable para nuestro entorno de emulación. La ventaja de Android CI es que podemos obtener los artefactos por medio de descarga directa lo cual toma minutos, a diferencia de compilar el sistema desde nuestro entorno de compilación (servidor) lo cual puede tomar horas.</p>
+<p style="text-align:justify;">Si su objetivo es directamente emular el Sistema Android (sin modificar el kernel o realizar cambios al sistema) o probar dispositivos y ramas de una manera rápida, su mejor opción es descargar los artefactos desde Android CI. También puede utilizar los artefactos de Android CI como referencia para saber cuales son los necesarios para la emulación y así buscarlos en la carpeta <code>/out</code> de su repositorio AOSP. Son dos artefactos los que necesita buscar en Android CI para la emulación de dispositivos Cuttlefish, estos son:</p>
+<ul>
+<li style="text-align:justify;">El archivo comprimido con las imágenes del sistema el cual tiene un nombre parecido a <code>aosp_cf_x86_phone-img-xxxxxx.zip</code>. (Recuerde seleccionar una dispositivo cuttlefish con arquitectura x86)</li>
+<li style="text-align:justify;">El archivo comprimido con las herramientas para que el Host pueda crear la emulación. En este caso el nombre exacto es<code>cvd-host_package.tar.gz</code></li>
+</ul>
+<p style="text-align:justify;">Si su objetivo es emular un dispositivo Android con kernel y configuraciones del sistema modificados, entonces deberá realizar las respectivas modificaciones utilizando el repositorio AOSP para posteriormente compilar el sistema desde su entorno de compilación. Lo siguiente será buscar los artefactos anteriormente mencionados en la carpeta <code>/out</code> de su repositorio AOSP. Tenga en cuenta que dentro del repositorio AOSP las imágenes las encontrará en la ruta <code>/out/device/</code> separadas y no como un archivo comprimido. El archivo comprimido con las herramientas del Host para emular el dispositivo lo puede encontrar en la ruta <code>/out/host/</code>.</p>
+<p style="text-align:justify;">En el caso de que esté utilizando Android CI, deberá de extraer el archivo de imágenes y copiar el archivo comprimido en una sola carpeta. En el caso de que esté utilizando los artefactos generados por una compilación, deberá copiar todas las imágenes en una carpeta y en la misma copiar el archivo comprimido con las herramientas del Host para la emulación del dispositivo.
+</p> 
 <br><br>
 <h2 style="text-align:center;">BIBLIOGRAFIAS</h2>
 1. Set up for Android Development. | (s. f.). Android Open Source Project. |<a href="https://source.android.com/setup/intro">Enlace a la pagina</a>
@@ -180,4 +217,6 @@ m -j24
 7. Chirammal, H. D., Mukhedkar, P., & Vettathu, A. (2016). | Mastering KVM Virtualization.| Packt Publishing. |<a href="https://www.packtpub.com/product/mastering-kvm-virtualization-second-edition/9781838828714">Enlace al libro</a>
 8. Kroah-Hartman, G. (2007).| Linux Kernel in a Nutshell.| Van Duuren Media.|<a href="http://www.kroah.com/lkn/">Enlace al libro</a>
 9. Establishing a Build Environment.|(s. f.). Android Open Source Project.|<a href="https://source.android.com/setup/build/initializing">Enlace a la pagina</a> 
+10. device/google/cuttlefish | Git at Google.|<a href="https://android.googlesource.com/device/google/cuttlefish/">Enlace a la pagina</a>  
+11. android-cuttlefish/BUILDING.md at main | google/android-cuttlefish.| (s. f.). GitHub.|<a href="https://github.com/google/android-cuttlefish/blob/main/BUILDING.md">Enlace a la pagina</a>  
 
