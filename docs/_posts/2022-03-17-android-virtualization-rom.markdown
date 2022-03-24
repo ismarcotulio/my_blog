@@ -89,13 +89,86 @@ categories: virtualization android
 <ol style="text-align:justify;">
 <li>Preparación de entorno del servidor en el cual se almacena el repositorio AOSP para posteriormente realizar compilaciones.</li>
 <li>Preparación de entorno del Host principal (Computadora personal) para la emulación de hardware del dispositivo Android Virtual y virtualización de su correspondiente software o sistema.</li>
-<li>Modificación del Kernel de linux para optimizar imagen del sistema Android.</li>
 <li>Implementación de software dual-boot que permita seleccionar la distribución o imagen Android a correr al iniciar nuestro dispositivo virtual.</li>
+<li>Modificación del Kernel de linux para optimizar imagen del sistema Android.</li>
 <li>Crear Versiones personalizadas de imágenes Android (ROMs).</li>
 <li>Implementar VMs (Con ROMs o distribuciones linux) en Host Secundario (Dispositivo Virtual Cuttlefish, el cual, es también un Guest del Host principal) de tal forma que se cumpla con todas las metas establecidas en relación a las aplicaciones reales o casos de uso.</li>
 </ol>
 <p style="text-align:justify;">Al realizar un análisis se llegó a la conclusión de que para garantizar el éxito, en la mayoría de casos sería necesario terminar una fase actual en su completitud para poder pasar a la siguiente. Por ejemplo, para poder modificar el kernel, antes se debe preparar el servidor que lo compila y para probar dicho kernel se debe tener preparado el Host principal en el que se emulara el dispositivo que lo correrá. Por tal razón se decidió que para este proyecto en específico no sería factible trabajar las fases de forma paralela, por lo cual finalmente se estableció una metodología en cascada como marco de trabajo oficial en la cual se podría pasar a la siguiente fase únicamente si cada integrante del equipo terminaba la fase actual en su completitud.
+</p><br>
+
+<h3>Compilacion de Sistema Android y obtencion de artefactos</h3>
+<p style="text-align:justify;">En esta seccion se encuentran los pasos a seguir para preparar el entorno en el cual posteriormente se compilaran los respectivos dispositivos AOSP. Tal como se ah mencionado en secciones anteriores se tendra un enfoque en el dispositivo <code>aosp_cf_x86_phone</code> perteneciente a la rama <code>aosp-android11-gsi</code>. Tambien se incluyen hallazgos y opiniones del equipo de sistemas asi como conceptos que se consideran relevantes. Es importante mencionar que muchos de los pasos que se mostraran a continuacion se pueden encontrar en la documentacion oficial de AOSP.</p>
+<br>
+<h4>Entorno de trabajo</h4>
+<p style="text-align:justify;">Con respecto al entorno de trabajo, después de muchas pruebas compilando diferentes dispositivos, se tomó la decisión de utilizar un solo servidor especializado para compilar Sistemas Android. A pesar de que cada integrante del equipo logró compilar dispositivos exitosamente desde su computadora personal, el proceso era muy tardado y se reportaba un alto consumo de CPU y RAM, lo cual limitaba la cantidad de procesos que se podían realizar simultáneamente en nuestras computadoras personales. Por tanto se creó una instancia en Amazon Web Services del tipo <code>m5zn.6xlarge</code>  con las siguientes características:</p>
+<ul>
+<li>Sistema Operativo Ubuntu 18.04.</li>
+<li>1 Tera-Byte de almacenamiento.</li>
+<li>Arquitectura x86.</li>
+<li>24 VCPU.</li>
+<li>96 GB de RAM.</li>
+<li>Conexion de 50 Gigabits.</li>
+</ul>
+<p style="text-align:justify;">Segun la documentación oficial de AOSP el mínimo de RAM requerido es de 16GB, sin embargo se pudo comprobar que esto depende de la versión de Android que se quiera compilar, por ejemplo, para la versión 7.1.2 (Nougat) el consumo de RAM era menor a los 4GB, sin embargo, para la última versión en la rama master el consumo sobrepasaba los 12 GB de ram.</p><br>
+<h4>Instalación de dependencias</h4>
+<p>Una vez hayamos verificado que cumplimos con los requisitos mínimos del sistema, lo siguiente será instalar todas las librerías y dependencias que requiere AOSP. El comando que se muestra a continuación podría variar dependiendo de la distribución linux que se esté utilizando: <a href="https://source.android.com/setup/build/initializing">[9]</a></p>
+```shell
+sudo apt-get install git-core gnupg flex bison build-essential zip curl zlib1g-dev gcc-multilib g++-multilib libc6-dev-i386 libncurses5 lib32ncurses5-dev x11proto-core-dev libx11-dev lib32z1-dev libgl1-mesa-dev libxml2-utils xsltproc unzip fontconfig
+```
+<br>
+<h4>Obteniendo repositorio AOSP</h4>
+<p style="text-align:justify;">Primero creamos en nuestro área personal de linux una carpeta con el nombre de nuestro proyecto, para ello abrimos la terminal y escribimos los siguientes comandos:</p>
+```shell
+cd /home/$USER
+```
+```shell
+mkdir aosp
+```
+```shell
+cd aosp
+```
+<p style="text-align:justify;">Una vez dentro de nuestra carpeta del proyecto, lo siguiente es obtener y configurar “repo”, el cual es un script de python mantenido por Google que nos ayuda a sincronizar repositorios AOSP, para ello en la terminal escribimos los siguientes comandos:</p>
+```shell
+sudo apt update
+```
+```shell
+sudo apt install git-all curl
+```
+```shell
+sudo curl https://storage.googleapis.com/git-repo-downloads/repo > repo
+```
+```shell
+sudo chmod a+x repo
+```
+<p style="text-align:justify;">Luego utilizando python3 para ejecutar nuestro archivo repo, inicializamos el repositorio AOSP en la rama <code>aosp-android11-gsi</code>:
 </p>
+```shell
+sudo python3 repo init -u https://android.googlesource.com/platform/manifest -b aosp-android11-gsi
+```
+<p style="text-align:justify;">Sincronizamos el código fuente del repositorio. Esta tarea una vez comenzada puede tardar algunos minutos dependiendo de la velocidad de descarga. (Con el parámetro -j puede especificar el numero de nucleos que desea utilizar en el multiprocesamiento):
+</p>
+```shell
+sudo python3 repo sync -j24
+```
+<br>
+<h4>Compilando Dispositivo</h4>
+<p style="text-align:justify;">Una vez tengamos el repositorio sincronizado, se nos agregara a la carpeta del proyecto un conjunto de archivos pertenecientes a AOSP. Lo siguiente es activar el entorno para poder compilar dispositivos Android:</p>
+```shell
+source build/envsetup.sh
+```
+<p>Despues, indicamos el dispositivo que queremos compilar:</p>
+```shell
+lunch aosp_cf_x86_phone
+```
+<p>Por último, comenzamos la compilación de la siguiente forma:</p>
+```shell
+m -j24
+```
+<br><br>
+<h3>Emulación de Dispositivo Virtual Cuttlefish</h3>
+<p style="text-align:justify;">Guia aqui</p><br>
+
 <br><br>
 <h2 style="text-align:center;">BIBLIOGRAFIAS</h2>
 1. Set up for Android Development. | (s. f.). Android Open Source Project. |<a href="https://source.android.com/setup/intro">Enlace a la pagina</a>
@@ -106,4 +179,5 @@ categories: virtualization android
 6. Dell Technologies Blog.|Emulation or virtualization: What’s the difference?.|13 de marzo de 2014.|<a href="https://www.dell.com/en-us/blog/emulation-or-virtualization-what-s-the-difference">Enlace a la pagina</a> 
 7. Chirammal, H. D., Mukhedkar, P., & Vettathu, A. (2016). | Mastering KVM Virtualization.| Packt Publishing. |<a href="https://www.packtpub.com/product/mastering-kvm-virtualization-second-edition/9781838828714">Enlace al libro</a>
 8. Kroah-Hartman, G. (2007).| Linux Kernel in a Nutshell.| Van Duuren Media.|<a href="http://www.kroah.com/lkn/">Enlace al libro</a>
+9. Establishing a Build Environment.|(s. f.). Android Open Source Project.|<a href="https://source.android.com/setup/build/initializing">Enlace a la pagina</a> 
 
