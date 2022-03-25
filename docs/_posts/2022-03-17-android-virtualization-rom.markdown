@@ -33,7 +33,7 @@ categories: virtualization android
 
 <br>
 <h4>Tipos de Emuladores</h4>
-<p>Actualmente en AOSP destacan dos formas de emular dispositivos android; La forma mas comun es por medio de un Emulador Android de Dispositivos Virtuales (AVD). Android Emulator nos permite ejecutar emulaciones de dispositivos Android en máquinas con Windows, macOS o Linux. El emulador de Android ejecuta el sistema operativo Android en una máquina virtual llamada dispositivo virtual de Android (AVD). El AVD contiene una pila completa de software de Android y se ejecuta como si estuviera en un dispositivo físico. <a href="https://source.android.com/setup/create/avd">[3]</a></p>
+<p style="text-align:justify;">Actualmente en AOSP destacan dos formas de emular dispositivos android; La forma mas comun es por medio de un Emulador Android de Dispositivos Virtuales (AVD). Android Emulator nos permite ejecutar emulaciones de dispositivos Android en máquinas con Windows, macOS o Linux. El emulador de Android ejecuta el sistema operativo Android en una máquina virtual llamada dispositivo virtual de Android (AVD). El AVD contiene una pila completa de software de Android y se ejecuta como si estuviera en un dispositivo físico. <a href="https://source.android.com/setup/create/avd">[3]</a></p>
 <p style="text-align:center;">Figura 1</p>
 <img src="https://raw.githubusercontent.com/martulioruiz/my_blog/main/docs/assets/emulator-design.png" style="display: block; margin-left: auto; margin-right: auto; width: 50%;">
 <p style="text-align:center; "><i>Nota. Arquitectura AVD, (s. f.). Android Open Source Project.</i></p>
@@ -76,11 +76,11 @@ categories: virtualization android
 <br><br>
 
 <h2 style="text-align:center;">PROYECTO</h2>
-<p>Tal como se mencionó anteriormente la temática principal del proyecto correspondiente a este artículo consiste en exponer aplicaciones reales de virtualización utilizando dispositivos android. Dentro de las aplicaciones a poner a prueba, destacan:</p>
+<p style="text-align:justify;">Tal como se mencionó anteriormente la temática principal del proyecto correspondiente a este artículo consiste en exponer aplicaciones reales de virtualización utilizando dispositivos android. Dentro de las aplicaciones a poner a prueba, destacan:</p>
 <ol style="text-align:justify;">
-<li><b>Protección de datos mediante máquinas virtuales:</b> Hoy en día es muy común que se manejen datos e información de carácter sensible en dispositivos móviles. Los mensajes del correo personal, fotos y videos en galería, información bancaria para realizar transacciones, documentos de trabajo, chats y contactos son algunos de los ejemplos de información que motivan a implementar una solución que garantice la protección de datos en dispositivos móviles. Si bien existen aplicaciones que permiten bloquear el acceso a cierta información, estas no están exentas de hackeos o técnicas que violen dichos mecanismos de seguridad. Es importante mencionar que consideramos que no existe implementación o sistema que no pueda ser hackeado o violado, sin embargo, el utilizar máquinas virtuales para proteger el acceso a datos (protección a nivel de Sistema operativo) es una opción más viable y segura que la protección por medio de aplicaciones de terceros.</li><br>
-<li><b>Sistema BYOB empresarial mediante máquinas virtuales:</b> Existen muchas empresas que ambientan sistemas operativos o distribuciones con aplicaciones y servicios personalizados para sus empleados con el fin de garantizar la conservación de datos y seguridad de los mismos. En estos entornos se suele limitar las acciones del usuario. Por ejemplo, dependiendo de la empresa es probable que se requiera restringir la instalación de aplicaciones, hacer cambios de configuración al sistema, restringir el acceso a aplicaciones y navegación en páginas no autorizadas, entre otras. También es posible monitorear la actividad de los empleados para generar reportes, hacer análisis de datos y mejorar la productividad. Una máquina virtual en dispositivos móviles cuya imagen sea personalizada con orientación BYOB ofrece todas esas ventajas. También permite tener servicios controlados en dispositivos portátiles así como una reducción de costos en inversión de equipos, ya que dicha máquina virtual se instalaría en el dispositivo personal del empleado sin afectar al sistema operativo principal.</li><br>
-<li><b>Sistemas Operativos de escritorio en dispositivos móviles:</b> De la misma forma en que se emula el hardware del dispositivo virtual cuttlefish y se virtualiza su software en una computadora personal, se pretende medir que tan factible es este mismo proceso pero en plataformas móviles. La capacidad de virtualizar un Sistema Operativo de escritorio en dispositivos móviles ofrece una amplia variedad de aplicaciones reales debido al conjunto de programas que existen en las diferentes plataformas. Entre algunas de las tantas aplicaciones que se podrían poner a prueba destacamos; La capacidad de manejar un entorno ambientado al pentesting de manera portable, por ejemplo kali linux; La capacidad de instalar software de virtualización basada en contenedores (Docker) que permita el levantamiento de servidores desde cualquier lugar.</li>
+<li style="text-align:justify;"><b>Protección de datos mediante máquinas virtuales:</b> Hoy en día es muy común que se manejen datos e información de carácter sensible en dispositivos móviles. Los mensajes del correo personal, fotos y videos en galería, información bancaria para realizar transacciones, documentos de trabajo, chats y contactos son algunos de los ejemplos de información que motivan a implementar una solución que garantice la protección de datos en dispositivos móviles. Si bien existen aplicaciones que permiten bloquear el acceso a cierta información, estas no están exentas de hackeos o técnicas que violen dichos mecanismos de seguridad. Es importante mencionar que consideramos que no existe implementación o sistema que no pueda ser hackeado o violado, sin embargo, el utilizar máquinas virtuales para proteger el acceso a datos (protección a nivel de Sistema operativo) es una opción más viable y segura que la protección por medio de aplicaciones de terceros.</li><br>
+<li style="text-align:justify;"><b>Sistema BYOB empresarial mediante máquinas virtuales:</b> Existen muchas empresas que ambientan sistemas operativos o distribuciones con aplicaciones y servicios personalizados para sus empleados con el fin de garantizar la conservación de datos y seguridad de los mismos. En estos entornos se suele limitar las acciones del usuario. Por ejemplo, dependiendo de la empresa es probable que se requiera restringir la instalación de aplicaciones, hacer cambios de configuración al sistema, restringir el acceso a aplicaciones y navegación en páginas no autorizadas, entre otras. También es posible monitorear la actividad de los empleados para generar reportes, hacer análisis de datos y mejorar la productividad. Una máquina virtual en dispositivos móviles cuya imagen sea personalizada con orientación BYOB ofrece todas esas ventajas. También permite tener servicios controlados en dispositivos portátiles así como una reducción de costos en inversión de equipos, ya que dicha máquina virtual se instalaría en el dispositivo personal del empleado sin afectar al sistema operativo principal.</li><br>
+<li style="text-align:justify;"><b>Sistemas Operativos de escritorio en dispositivos móviles:</b> De la misma forma en que se emula el hardware del dispositivo virtual cuttlefish y se virtualiza su software en una computadora personal, se pretende medir que tan factible es este mismo proceso pero en plataformas móviles. La capacidad de virtualizar un Sistema Operativo de escritorio en dispositivos móviles ofrece una amplia variedad de aplicaciones reales debido al conjunto de programas que existen en las diferentes plataformas. Entre algunas de las tantas aplicaciones que se podrían poner a prueba destacamos; La capacidad de manejar un entorno ambientado al pentesting de manera portable, por ejemplo kali linux; La capacidad de instalar software de virtualización basada en contenedores (Docker) que permita el levantamiento de servidores desde cualquier lugar.</li>
 </ol><br>
 
 <h4>Metodologia</h4>
@@ -116,7 +116,7 @@ categories: virtualization android
 <p style="text-align:center; "><i>Nota. Consumo de recursos durante la compilacion.</i></p>
 <br>
 <h4>Instalación de dependencias</h4>
-<p>Una vez hayamos verificado que cumplimos con los requisitos mínimos del sistema, lo siguiente será instalar todas las librerías y dependencias que requiere AOSP. El comando que se muestra a continuación podría variar dependiendo de la distribución linux que se esté utilizando: <a href="https://source.android.com/setup/build/initializing">[9]</a></p>
+<p style="text-align:justify;">Una vez hayamos verificado que cumplimos con los requisitos mínimos del sistema, lo siguiente será instalar todas las librerías y dependencias que requiere AOSP. El comando que se muestra a continuación podría variar dependiendo de la distribución linux que se esté utilizando: <a href="https://source.android.com/setup/build/initializing">[9]</a></p>
 ```shell
 sudo apt-get install git-core gnupg flex bison build-essential zip curl zlib1g-dev gcc-multilib g++-multilib libc6-dev-i386 libncurses5 lib32ncurses5-dev x11proto-core-dev libx11-dev lib32z1-dev libgl1-mesa-dev libxml2-utils xsltproc unzip fontconfig
 ```
@@ -164,11 +164,11 @@ sudo python3 repo sync -j24
 ```shell
 source build/envsetup.sh
 ```
-<p>Despues, indicamos el dispositivo que queremos compilar:</p>
+<p style="text-align:justify;">Despues, indicamos el dispositivo que queremos compilar:</p>
 ```shell
 lunch aosp_cf_x86_phone
 ```
-<p>Por último, comenzamos la compilación de la siguiente forma:</p>
+<p style="text-align:justify;">Por último, comenzamos la compilación de la siguiente forma:</p>
 ```shell
 m -j24
 ```
@@ -202,7 +202,7 @@ m -j24
 ```shell
 sudo usermod -aG sudo $USER
 ```
-<p>Si por alguna razón el comando anterior no funciona, puede agregar a su usuario de forma manual utilizando un editor de texto como vim o nano y escribir al final del archivo <code>miUsuario  ALL=(ALL) NOPASSWD:ALL
+<p style="text-align:justify;">Si por alguna razón el comando anterior no funciona, puede agregar a su usuario de forma manual utilizando un editor de texto como vim o nano y escribir al final del archivo <code>miUsuario  ALL=(ALL) NOPASSWD:ALL
 </code>:</p>
 ```shell
 sudo nano /etc/sudoers.d
@@ -229,7 +229,7 @@ sudo nano /etc/sudoers.d
 ```shell
 grep -c -w "vmx\|svm" /proc/cpuinfo
 ```
-<p>Si la salida es un número mayor a cero entonces nuestro equipo es capaz de virtualizar con KVM.</p>
+<p style="text-align:justify;">Si la salida es un número mayor a cero entonces nuestro equipo es capaz de virtualizar con KVM.</p>
 
 <p style="text-align:center;">Figura 8</p>
 <img src="https://raw.githubusercontent.com/martulioruiz/my_blog/main/docs/assets/kvmOk.png" style="display: block; margin-left: auto; margin-right: auto; width: 50%;">
@@ -298,9 +298,9 @@ source setup.sh
 cvd_docker_create -x --android=/home/$USER/Documents/aosp/android11-gsi-x86/ --cuttlefish=/home/$USER/Documents/aosp/android11-gsi-x86/cvd-host_package.tar.gz cf11x86
 ```
 <p style="text-align:center;">Figura 9</p>
-<img src="/assets/createcf.png" style="display: block; margin-left: auto; margin-right: auto; width: 50%;">
+<img src="https://raw.githubusercontent.com/martulioruiz/my_blog/main/docs/assets/createcf.png" style="display: block; margin-left: auto; margin-right: auto; width: 50%;">
 <p style="text-align:center; "><i>Nota. Contenedor cf11x86 creado.</i></p>
-<p>Después lo que haremos sera entrar al contenedor y ejecutar manualmente el archivo <code>launch_cvd</code>. Este archivo inicia los procesos para correr las imágenes y activar el socket que mantendrá estable al dispositivo. Para entrar en el contenedor debemos utilizar su nombre en combinación a un comando:</p>
+<p style="text-align:justify;">Después lo que haremos sera entrar al contenedor y ejecutar manualmente el archivo <code>launch_cvd</code>. Este archivo inicia los procesos para correr las imágenes y activar el socket que mantendrá estable al dispositivo. Para entrar en el contenedor debemos utilizar su nombre en combinación a un comando:</p>
 ```shell
 cvd_login_cf11x86
 ```
@@ -321,11 +321,11 @@ source setup.sh
 ```shell
 cvd_login_cf11x86 google-chrome-stable
 ```
-<p>Se nos abrirá un navegador Google Chrome el cual se ejecuta dentro de nuestro contenedor. Escribimos la dirección <code>https://127.0.0.1:8443</code> y nos conectamos a nuestro respectivo dispositivo.</p>
+<p style="text-align:justify;">Se nos abrirá un navegador Google Chrome el cual se ejecuta dentro de nuestro contenedor. Escribimos la dirección <code>https://127.0.0.1:8443</code> y nos conectamos a nuestro respectivo dispositivo.</p>
 <p style="text-align:center;">Figura 12</p>
 <img src="https://raw.githubusercontent.com/martulioruiz/my_blog/main/docs/assets/cvdWebRTC.png" style="display: block; margin-left: auto; margin-right: auto; width: 50%;">
 <p style="text-align:center; "><i>Nota. Conexión con dispositivo Cuttlefish vía WebRTC.</i></p>
-<p>Finalmente, se recomienda detener el socket sin forzarlo (ctrl+c). Para ello desde una nueva terminal escribimos:
+<p style="text-align:justify;">Finalmente, se recomienda detener el socket sin forzarlo (ctrl+c). Para ello desde una nueva terminal escribimos:
 </p>
 ```shell
 source setup.sh
