@@ -235,7 +235,7 @@ grep -c -w "vmx\|svm" /proc/cpuinfo
 <img src="https://raw.githubusercontent.com/martulioruiz/my_blog/main/docs/assets/kvmOk.png" style="display: block; margin-left: auto; margin-right: auto; width: 50%;">
 <p style="text-align:center; "><i>Nota. Equipo capaz de virtualizar con KVM.</i></p>
 
-<p>Luego instalamos en nuestro host el paquete git-all y algunos otros paquetes necesarios que nos permitirán compilar el paquete "cuttlefish-common". Para ello ejecutamos los siguientes comandos:</p>
+<p style="text-align:justify;">Luego instalamos en nuestro host el paquete git-all y algunos otros paquetes necesarios que nos permitirán compilar el paquete "cuttlefish-common". Para ello ejecutamos los siguientes comandos:</p>
 ```shell
 sudo apt update
 ```
@@ -245,7 +245,7 @@ sudo apt install git-all
 ```shell
 sudo apt install -y git devscripts config-package-dev debhelper-compat golang
 ```
-<p>Después, clonamos el repositorio Android-Cuttlefish, compilamos el paquete "cuttlefish-common" y lo instalamos:</p>
+<p style="text-align:justify;">Después, clonamos el repositorio Android-Cuttlefish, compilamos el paquete "cuttlefish-common" y lo instalamos:</p>
 ```shell
 cd /home/$USER
 ```
@@ -269,7 +269,70 @@ sudo usermod -aG kvm,cvdnetwork,render $USER
 sudo reboot
 ```
 <br>
-<h4></h4>
+<h4>Contenedor Android Cuttlefish</h4>
+<p style="text-align:justify;">El segundo uso que le daremos al repositorio Android-Cuttlefish será para crear un contenedor con algunas configuraciones e instalaciones de paquetes que garanticen la emulación del dispositivo cuttlefish. Entre estas herramientas destacan QEMU x86, Google Chrome, WebRTC, sockets en kernel Host, drivers de video, dependencia LibVirt, entre otras.</p>
+<p style="text-align:justify;">Primero, instalamos docker y añadimos algunos módulos de kernel al host:</p>
+```shell
+curl https://get.docker.com | sh
+```
+```
+sudo modprobe vhost_vsock vhost_net
+```
+<p style="text-align:justify;">Luego nos vamos a la raíz del repositorio Android-Cuttlefish y construimos la imagen docker del contenedor:</p>
+```shell
+./build.sh
+```
+<p style="text-align:justify;">Una vez que tengamos lista la imagen del contenedor en docker, lo siguiente será crear el contenedor como tal. Para ello haremos uso de algunos comandos o funciones que nos proporciona el repositorio de Android-Cuttlefish. Estos comandos activan una serie de instrucciones bash las cuales pueden ser encontradas en el archivo <code>setup.sh</code>. Por tanto debemos hacer reconocibles dichos comandos por nuestro sistema, para ello desde la carpeta raíz del repositorio Android-Cuttlefish ejecutamos en la terminal (Este paso se debe realizar en cada terminal nueva):</p>
+```shell
+source setup.sh
+```
+<p style="text-align:justify;">A continuación crearemos nuestro primer contenedor para emular dispositivos cuttlefish. Recordando en secciones anteriores, para realizar este paso es requisito tener listo los artefactos del dispositivo cuttlefish en una sola carpeta. Para efectos de demostración se asumirá que los artefactos se encuentran en la carpeta <code>/home/$USER/Documents/aosp/android11-gsi-x86/</code>. Para crear el contenedor utilizaremos el comando <code>cvd_docker_create</code>, el cual recibe 4 parámetros:</p>
+<ol>
+<li style="text-align:justify;">El parámetro -x. Permite redireccionar peticiones realizadas dentro del contenedor hacia el Host. (Útil para renderizar en el Host un navegador que se ejecute dentro del contenedor).</li>
+<li style="text-align:justify;">El parámetro --android. Permite especificar manualmente la ruta en donde se encuentran las imágenes de nuestro dispositivo.</li>
+<li style="text-align:justify;">El parámetro --cuttlefish. Permite especificar manualmente la ruta en donde se encuentra el archivo comprimido <code>cvd-host_package.tar.gz</code>.</li>
+<li style="text-align:justify;">El nombre del contenedor (Importante recordar).</li>
+</ol>
+<p style="text-align:justify;">Por tanto, el comando se escribirá de la siguiente forma:</p>
+```shell
+cvd_docker_create -x --android=/home/$USER/Documents/aosp/android11-gsi-x86/ --cuttlefish=/home/$USER/Documents/aosp/android11-gsi-x86/cvd-host_package.tar.gz cf11x86
+```
+<p style="text-align:center;">Figura 9</p>
+<img src="/assets/createcf.png" style="display: block; margin-left: auto; margin-right: auto; width: 50%;">
+<p style="text-align:center; "><i>Nota. Contenedor cf11x86 creado.</i></p>
+<p>Después lo que haremos sera entrar al contenedor y ejecutar manualmente el archivo <code>launch_cvd</code>. Este archivo inicia los procesos para correr las imágenes y activar el socket que mantendrá estable al dispositivo. Para entrar en el contenedor debemos utilizar su nombre en combinación a un comando:</p>
+```shell
+cvd_login_cf11x86
+```
+<p style="text-align:center;">Figura 10</p>
+<img src="https://raw.githubusercontent.com/martulioruiz/my_blog/main/docs/assets/dirContenedor.png" style="display: block; margin-left: auto; margin-right: auto; width: 50%;">
+<p style="text-align:center; "><i>Nota. Directorios dentro del contenedor cf11x86.</i></p>
+<p style="text-align:justify;">Estando dentro del contenedor, desde la raíz escribimos el siguiente comando:</p>
+```shell
+./bin/launch_cvd --start_webrtc --cpus 4 --memory_mb 4096
+```
+<p style="text-align:center;">Figura 11</p>
+<img src="https://raw.githubusercontent.com/martulioruiz/my_blog/main/docs/assets/cvdBooted.png" style="display: block; margin-left: auto; margin-right: auto; width: 50%;">
+<p style="text-align:center; "><i>Nota. Dispositivo cuttlefish iniciado.</i></p>
+<p style="text-align:justify;">El último paso en esta sección es conectarnos al emulador. Para ello abrimos una nueva terminal y escribimos el siguiente comando:</p>
+```shell
+source setup.sh
+```
+```shell
+cvd_login_cf11x86 google-chrome-stable
+```
+<p>Se nos abrirá un navegador Google Chrome el cual se ejecuta dentro de nuestro contenedor. Escribimos la dirección <code>https://127.0.0.1:8443</code> y nos conectamos a nuestro respectivo dispositivo.</p>
+<p style="text-align:center;">Figura 12</p>
+<img src="https://raw.githubusercontent.com/martulioruiz/my_blog/main/docs/assets/cvdWebRTC.png" style="display: block; margin-left: auto; margin-right: auto; width: 50%;">
+<p style="text-align:center; "><i>Nota. Conexión con dispositivo Cuttlefish vía WebRTC.</i></p>
+<p>Finalmente, se recomienda detener el socket sin forzarlo (ctrl+c). Para ello desde una nueva terminal escribimos:
+</p>
+```shell
+source setup.sh
+```
+```shell
+cvd_stop_cf11x86
+```
 <br><br>
 <h2 style="text-align:center;">BIBLIOGRAFIAS</h2>
 1. Set up for Android Development. | (s. f.). Android Open Source Project. |<a href="https://source.android.com/setup/intro">Enlace a la pagina</a>
