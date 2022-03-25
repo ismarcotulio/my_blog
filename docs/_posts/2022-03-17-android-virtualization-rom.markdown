@@ -110,7 +110,11 @@ categories: virtualization android
 <li>96 GB de RAM.</li>
 <li>Conexion de 50 Gigabits.</li>
 </ul>
-<p style="text-align:justify;">Segun la documentación oficial de AOSP el mínimo de RAM requerido es de 16GB, sin embargo se pudo comprobar que esto depende de la versión de Android que se quiera compilar, por ejemplo, para la versión 7.1.2 (Nougat) el consumo de RAM era menor a los 4GB, sin embargo, para la última versión en la rama master el consumo sobrepasaba los 12 GB de ram.</p><br>
+<p style="text-align:justify;">Segun la documentación oficial de AOSP el mínimo de RAM requerido es de 16GB, sin embargo se pudo comprobar que esto depende de la versión de Android que se quiera compilar, por ejemplo, para la versión 7.1.2 (Nougat) el consumo de RAM era menor a los 4GB, sin embargo, para la última versión en la rama master el consumo sobrepasaba los 12 GB de ram.</p>
+<p style="text-align:center;">Figura 3</p>
+<img src="https://raw.githubusercontent.com/martulioruiz/my_blog/main/docs/assets/htopBuild.png" style="display: block; margin-left: auto; margin-right: auto; width: 50%;">
+<p style="text-align:center; "><i>Nota. Consumo de recursos durante la compilacion.</i></p>
+<br>
 <h4>Instalación de dependencias</h4>
 <p>Una vez hayamos verificado que cumplimos con los requisitos mínimos del sistema, lo siguiente será instalar todas las librerías y dependencias que requiere AOSP. El comando que se muestra a continuación podría variar dependiendo de la distribución linux que se esté utilizando: <a href="https://source.android.com/setup/build/initializing">[9]</a></p>
 ```shell
@@ -141,16 +145,19 @@ sudo curl https://storage.googleapis.com/git-repo-downloads/repo > repo
 ```shell
 sudo chmod a+x repo
 ```
-<p style="text-align:justify;">Luego utilizando python3 para ejecutar nuestro archivo repo, inicializamos el repositorio AOSP en la rama <code>aosp-android11-gsi</code>:
+<p style="text-align:justify;">Luego utilizando python3 para ejecutar nuestro archivo repo, inicializamos el repositorio AOSP en la rama <code>android11-gsi</code>:
 </p>
 ```shell
-sudo python3 repo init -u https://android.googlesource.com/platform/manifest -b aosp-android11-gsi
+sudo python3 repo init -u https://android.googlesource.com/platform/manifest -b android11-gsi
 ```
 <p style="text-align:justify;">Sincronizamos el código fuente del repositorio. Esta tarea una vez comenzada puede tardar algunos minutos dependiendo de la velocidad de descarga. (Con el parámetro -j puede especificar el numero de nucleos que desea utilizar en el multiprocesamiento):
 </p>
 ```shell
 sudo python3 repo sync -j24
 ```
+<p style="text-align:center;">Figura 4</p>
+<img src="https://raw.githubusercontent.com/martulioruiz/my_blog/main/docs/assets/repoSync.png" style="display: block; margin-left: auto; margin-right: auto; width: 50%;">
+<p style="text-align:center; "><i>Nota. Sincronizacion del repositorio android11-gsi completada.</i></p>
 <br>
 <h4>Compilando Dispositivo</h4>
 <p style="text-align:justify;">Una vez tengamos el repositorio sincronizado, se nos agregara a la carpeta del proyecto un conjunto de archivos pertenecientes a AOSP. Lo siguiente es activar el entorno para poder compilar dispositivos Android:</p>
@@ -165,6 +172,12 @@ lunch aosp_cf_x86_phone
 ```shell
 m -j24
 ```
+<p style="text-align:center;">Figura 5</p>
+<img src="https://raw.githubusercontent.com/martulioruiz/my_blog/main/docs/assets/aospDevice.png" style="display: block; margin-left: auto; margin-right: auto; width: 50%;">
+<p style="text-align:center; "><i>Nota. Inicializando dispositivo aosp_cf_x86_phone.</i></p>
+<p style="text-align:center;">Figura 6</p>
+<img src="https://raw.githubusercontent.com/martulioruiz/my_blog/main/docs/assets/buildAOSP.png" style="display: block; margin-left: auto; margin-right: auto; width: 50%;">
+<p style="text-align:center; "><i>Nota. Compilacion de dispositivo aosp_cf_x86_phone terminada.</i></p>
 <br><br>
 <h3>Emulación de Dispositivo Virtual Cuttlefish</h3>
 <p style="text-align:justify;">En esta sección se encuentran los pasos a seguir para preparar un entorno (Host) que permita emular un dispositivo cuttlefish (Guest). Es recomendable que el compilado y la emulación se realicen en entornos diferentes. En el caso del entorno de simulación, se comprobó después de algunas pruebas que es problemático utilizar máquinas virtuales por el tema de virtualización anidada. Teniendo en cuenta lo anterior, se recomienda que el host sea un Sistema instalado directamente en disco del ordenador físico. Tambien se incluyen hallazgos y opiniones del equipo de sistemas asi como conceptos que se consideran relevantes. Es importante mencionar que muchos de los pasos que se mostraran a continuacion se pueden encontrar en la documentacion oficial de Google Source <a href="https://android.googlesource.com/device/google/cuttlefish/">[10]</a> y en la documentacion oficial de Github <a href="https://github.com/google/android-cuttlefish/blob/main/BUILDING.md">[11]</a>.</p><br>
@@ -203,9 +216,60 @@ sudo nano /etc/sudoers.d
 <li style="text-align:justify;">El archivo comprimido con las imágenes del sistema el cual tiene un nombre parecido a <code>aosp_cf_x86_phone-img-xxxxxx.zip</code>. (Recuerde seleccionar una dispositivo cuttlefish con arquitectura x86)</li>
 <li style="text-align:justify;">El archivo comprimido con las herramientas para que el Host pueda crear la emulación. En este caso el nombre exacto es<code>cvd-host_package.tar.gz</code></li>
 </ul>
-<p style="text-align:justify;">Si su objetivo es emular un dispositivo Android con kernel y configuraciones del sistema modificados, entonces deberá realizar las respectivas modificaciones utilizando el repositorio AOSP para posteriormente compilar el sistema desde su entorno de compilación. Lo siguiente será buscar los artefactos anteriormente mencionados en la carpeta <code>/out</code> de su repositorio AOSP. Tenga en cuenta que dentro del repositorio AOSP las imágenes las encontrará en la ruta <code>/out/device/</code> separadas y no como un archivo comprimido. El archivo comprimido con las herramientas del Host para emular el dispositivo lo puede encontrar en la ruta <code>/out/host/</code>.</p>
+<p style="text-align:justify;">Si su objetivo es emular un dispositivo Android con kernel y configuraciones del sistema modificados, entonces deberá realizar las respectivas modificaciones utilizando el repositorio AOSP para posteriormente compilar el sistema desde su entorno de compilación. Lo siguiente será buscar los artefactos anteriormente mencionados en la carpeta <code>/out</code> de su repositorio AOSP. Tenga en cuenta que dentro del repositorio AOSP las imágenes las encontrará en la ruta <code>/out/target/product/vsoc_x86/</code> separadas y no como un archivo comprimido. El archivo comprimido con las herramientas del Host para emular el dispositivo lo puede encontrar en la ruta <code>/out/host/linux-x86/</code>.</p>
 <p style="text-align:justify;">En el caso de que esté utilizando Android CI, deberá de extraer el archivo de imágenes y copiar el archivo comprimido en una sola carpeta. En el caso de que esté utilizando los artefactos generados por una compilación, deberá copiar todas las imágenes en una carpeta y en la misma copiar el archivo comprimido con las herramientas del Host para la emulación del dispositivo.
-</p> 
+</p>
+<p style="text-align:center;">Figura 7</p>
+<img src="https://raw.githubusercontent.com/martulioruiz/my_blog/main/docs/assets/deviceFolder.png" style="display: block; margin-left: auto; margin-right: auto; width: 50%;">
+<p style="text-align:center; "><i>Nota. Artefactos de dispositivo aosp_cf_x86_phone.</i></p>
+<br>
+
+<h4>Paquetes de Debian</h4>
+<p style="text-align:justify;">Una vez que tengamos listos los artefactos del dispositivo, lo siguiente que haremos es utilizar el repositorio de Github Android-Cuttlefish, el cual contiene un conjunto de herramientas que nos permitirán emular nuestro dispositivo cuttlefish. El primer uso que le daremos al repositorio será el de construir un paquete Debian llamado "cuttlefish-common". Este paquete es una recopilación de dependencias que son necesarias para que algunas herramientas del repositorio Android-Cuttlefish funcionen correctamente. Habiendo dicho lo anterior, antes de comenzar debemos verificar que nuestro equipo sea capaz de virtualizar con KVM, para ello utilizamos el siguiente comando:</p>
+```shell
+grep -c -w "vmx\|svm" /proc/cpuinfo
+```
+<p>Si la salida es un número mayor a cero entonces nuestro equipo es capaz de virtualizar con KVM.</p>
+
+<p style="text-align:center;">Figura 8</p>
+<img src="https://raw.githubusercontent.com/martulioruiz/my_blog/main/docs/assets/kvmOk.png" style="display: block; margin-left: auto; margin-right: auto; width: 50%;">
+<p style="text-align:center; "><i>Nota. Equipo capaz de virtualizar con KVM.</i></p>
+
+<p>Luego instalamos en nuestro host el paquete git-all y algunos otros paquetes necesarios que nos permitirán compilar el paquete "cuttlefish-common". Para ello ejecutamos los siguientes comandos:</p>
+```shell
+sudo apt update
+```
+```shell
+sudo apt install git-all
+```
+```shell
+sudo apt install -y git devscripts config-package-dev debhelper-compat golang
+```
+<p>Después, clonamos el repositorio Android-Cuttlefish, compilamos el paquete "cuttlefish-common" y lo instalamos:</p>
+```shell
+cd /home/$USER
+```
+```shell
+git clone https://github.com/google/android-cuttlefish
+```
+```shell
+cd android-cuttlefish
+```
+```shell
+debuild -i -us -uc -b -d
+```
+```shell
+sudo dpkg -i ../cuttlefish-common_*_*64.deb || sudo apt-get install -f
+```
+```shell
+sudo usermod -aG kvm,cvdnetwork,render $USER
+```
+<p>Por último reiniciamos nuestro equipo:</p>
+```shell
+sudo reboot
+```
+<br>
+<h4></h4>
 <br><br>
 <h2 style="text-align:center;">BIBLIOGRAFIAS</h2>
 1. Set up for Android Development. | (s. f.). Android Open Source Project. |<a href="https://source.android.com/setup/intro">Enlace a la pagina</a>
