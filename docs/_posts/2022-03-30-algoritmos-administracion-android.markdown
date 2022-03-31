@@ -121,7 +121,7 @@ categories: algoritmos android
 <h2 style="text-align:center;">DEPURACIÓN DEL USO DE MEMORIA EN ANDROID</h2>
 
 <br>
-<h4>Clase Logger</h4>
+<h4>dumpsys meminfo</h4>
 <p style="text-align:justify;">Un buen lugar para empezar a investigar el uso de memoria de un proceso es dumpsys meminfo el cual proporciona un punto de vista de alto nivel sobre qué tanto de los varios tipos de memoria está siendo utilizado por un proceso. <a href="https://perfetto.dev/docs/case-studies/memory">[4]</a>
 </p>
 
@@ -131,10 +131,111 @@ categories: algoritmos android
 </i></p>
 
 <br><br>
+<h2 style="text-align:center;">PLANIFICADORES DE PROCESOS EN ANDROID</h2>
+
+<p style="text-align:justify;">Con frecuencia la documentación de Android se refiere a la gestión de procesos como  ciclo de vida de Android. Android implementa la multitarea mediante la ejecución de múltiples hilos para cada proceso; el proceso más simple consta de un sólo hilo principal que sólo es lanzado en el caso de que no exista ninguna instancia del proceso en ejecución. De igual forma un proceso puede utilizar múltiples hilos, uno por cada subproceso.</p>
+
+<br>
+<h3>Estado de los procesos</h3>
+<p style="text-align:justify;">Cada aplicación de Android corre en su propio proceso, el cual es creado por la aplicación cuando se ejecuta y permanece hasta que la aplicación deja de trabajar o el sistema necesita memoria para otras aplicaciones. Android sitúa cada proceso en una jerarquía de "importancia" basada en estados, como se puede ver a continuación: <a href="http://www.jtech.ua.es/dadm/2011-2012/restringido/android-av/wholesite.pdf">[5]</a></p>
+<ul style="text-align:justify;">
+<li><b>Procesos en primer plano (Active process):</b> Es un proceso que aloja una Activity en la pantalla y con la que el usuario está interactuando (su método onResume() ha sido llamado) o que un IntentReceiver está ejecutándose. Este tipo de procesos serán eliminados como último recurso si el sistema necesitase memoria.
+</li>
+<li><b>Procesos visibles (Visible process):</b> Es un proceso que aloja una Activity pero no está en primer plano (su método onPause() ha sido llamado). Esto ocurre en situaciones dónde la aplicación muestra un cuadro de diálogo para interactuar con el usuario. Este tipo de procesos no será eliminado en caso que sea necesaria la memoria para mantener a todos los procesos del primer plano corriendo.
+</li>
+<li><b>Procesos de servicio (Started service process): </b> Es un proceso que aloja un Service que ha sido iniciado con el método startService(). Este tipo de procesos no son visibles y suelen ser importantes para el usuario (conexión con servidores, reproducción de música).
+</li>
+<li><b>Procesos en segundo plano (Background process):</b> Es un proceso que aloja una Actividad que no es actualmente visible para el usuario (su método onStop() ha sido llamado). Normalmente la eliminación de estos procesos no suponen un gran impacto para la actividad del usuario. Es muy usual que existan numerosos procesos de este tipo en el sistema, por lo que el sistema mantiene una lista para asegurar que el último proceso visto por el usuario sea el último en eliminarse en caso de necesitar memoria.</li>
+<li><b>Procesos vacíos (Empty process):</b> Es un proceso que no aloja ningún componente. La razón de existir de este proceso es tener una caché disponible de la aplicación para su próxima activación. Es común que el sistema elimine este tipo de procesos con frecuencia para obtener memoria disponible.</li>
+</ul>
+
+<p style="text-align:justify;">Según esta jerarquía, Android prioriza los procesos existentes en el sistema y decide cuáles han de ser eliminados, con el fin de liberar recursos y poder lanzar la aplicación requerida. <a href="http://www.jtech.ua.es/dadm/2011-2012/restringido/android-av/wholesite.pdf">[5]</a></p>
+
+<p style="text-align:center;">Figura 4</p>
+<img src="https://raw.githubusercontent.com/martulioruiz/my_blog/main/docs/assets/processState1.jpeg" style="display: block; margin-left: auto; margin-right: auto; width: 50%;">
+<p style="text-align:center; "><i>Nota. Estados de los procesos.
+</i></p>
+
+<br>
+<h3>Ciclo de vida de una actividad</h3>
+<p style="text-align:justify;">El hecho de que cada aplicación se ejecuta en su propio proceso aporta beneficios en cuestiones básicas como seguridad, gestión de memoria, o la ocupación de la CPU del dispositivo móvil. Android se ocupa de lanzar y parar todos estos procesos, gestionar su ejecución y decidir qué hacer en función de los recursos disponibles y de las órdenes dadas por el usuario. El usuario desconoce este comportamiento de Android. Simplemente es consciente de que mediante un simple clic pasa de una a otra aplicación y puede volver a cualquiera de ellas en el momento que lo desee. <a href="http://www.jtech.ua.es/dadm/2011-2012/restringido/android-av/wholesite.pdf">[5]</a></p>
+
+<p style="text-align:justify;">Android lanza tantos procesos como permitan los recursos del dispositivo. Cada proceso, correspondiente a una aplicación, estará formado por una o varias actividades independientes (componentes Activity) de esa aplicación. Cuando el usuario navega de una actividad a otra, o abre una nueva aplicación, el sistema detiene dicho proceso y realiza una copia de su estado para poder recuperarlo más tarde. El proceso y la actividad siguen existiendo en el sistema, pero están dormidos y su estado ha sido guardado. Es entonces cuando crea, o despierta si ya existe, el proceso para la aplicación que debe ser lanzada, asumiendo que existan recursos para ello. <a href="http://www.jtech.ua.es/dadm/2011-2012/restringido/android-av/wholesite.pdf">[5]</a></p>
+
+<p style="text-align:justify;">Cada uno de los componentes básicos de Android tiene un ciclo de vida bien definido; esto implica que el desarrollador puede controlar en cada momento en qué estado se encuentra dicho componente, pudiendo así programar las acciones que mejor convengan. El componente Activity, probablemente el más importante, tiene un ciclo de vida como el mostrado en la siguiente figura. <a href="http://www.jtech.ua.es/dadm/2011-2012/restringido/android-av/wholesite.pdf">[5]</a></p>
+
+<p style="text-align:center;">Figura 5</p>
+<img src="https://raw.githubusercontent.com/martulioruiz/my_blog/main/docs/assets/processActivity.jpeg" style="display: block; margin-left: auto; margin-right: auto; width: 50%;">
+<p style="text-align:center; "><i>Nota. Ciclo de vida de un proceso.
+</i></p>
+
+<p style="text-align:justify;">De la figura anterior, pueden sacarse las siguientes conclusiones: <a href="http://www.jtech.ua.es/dadm/2011-2012/restringido/android-av/wholesite.pdf">[5]</a></p>
+<ul style="text-align:justify;">
+<li><b>onCreate(), onDestroy(): </b>Abarcan todo el ciclo de vida. Cada uno de estos métodos representan el principio y el fin de la actividad.
+</li>
+<li><b>onStart(), onStop():</b>  Representan la parte visible del ciclo de vida. Desde onStart() hasta onStop(), la actividad será visible para el usuario, aunque es posible que no tenga el foco de acción por existir otras actividades superpuestas con las que el usuario está interactuando. Pueden ser llamados múltiples veces.
+</li>
+<li><b>onResume(), onPause():</b> Delimitan la parte útil del ciclo de vida. Desde onResume() hasta onPause(), la actividad no sólo es visible, sino que además tiene el foco de la acción y el usuario puede interactuar con ella. </li>
+</ul>
+
+<p style="text-align:justify;">Tal y como se ve en el diagrama de la figura anterior, el proceso que mantiene a esta Activity puede ser eliminado cuando se encuentra en onPause() o en onStop(), es decir, cuando no tiene el foco de la aplicación. Android nunca elimina procesos con los que el usuario está interactuando en ese momento. Una vez se elimina el proceso, el usuario desconoce dicha situación y puede incluso volver atrás y querer usarlo de nuevo. Entonces el proceso se restaura gracias a una copia y vuelve a estar activo como si no hubiera sido eliminado. Además, la Activity puede haber estado en segundo plano, invisible, y entonces es despertada pasando por el estado onRestart().Pero, ¿qué ocurre en realidad cuando no existen recursos suficientes? Obviamente, los recursos son siempre limitados, más aún cuando se está hablando de dispositivos móviles. En el momento en el que Android detecta que no hay los recursos necesarios para poder lanzar una nueva aplicación, analiza los procesos existentes en ese momento y elimina los procesos que sean menos prioritarios para poder liberar sus recursos. <a href="http://www.jtech.ua.es/dadm/2011-2012/restringido/android-av/wholesite.pdf">[5]</a></p>
+
+<p style="text-align:justify;">Cuando el usuario regresa a una actividad que está dormida, el sistema simplemente la despierta. En este caso, no es necesario recuperar el estado guardado porque el proceso todavía existe y mantiene el mismo estado. Sin embargo, cuando el usuario quiere regresar a una aplicación cuyo proceso ya no existe porque se necesitaba liberar sus recursos, Android lo crea de nuevo y utiliza el estado previamente guardado para poder restaurar una copia fresca del mismo. Como se ya ha explicado, el usuario no percibe esta situación ni conoce si el proceso ha sido eliminado o está dormido.<a href="http://www.jtech.ua.es/dadm/2011-2012/restringido/android-av/wholesite.pdf">[5]</a></p>
+
+<br>
+<h3>Planificación de procesos</h3>
+<p style="text-align:justify;">Android es un sistema operativo basado en el kernel de Linux para la determinación de la planificación de sus procesos debido a esto algunos procesos en Android 8 son nativos, pero la mayoría de procesos se ejecutan en una máquina virtual de java; en la mayoría de los casos Android 8 al ejecutar una aplicación lo hace en su propio proceso Linux, se crea un proceso para la aplicación cuando se ejecuta esta aplicación y los seguirá ejecutando hasta que el sistema reclame recursos de otros procesos hasta que sea necesario y pueda asignarle a esta aplicaciones. Android tiene políticas de planificación de procesos las cuales son las siguientes:<a href="http://www.jtech.ua.es/dadm/2011-2012/restringido/android-av/wholesite.pdf">[5]</a></p>
+<ul style="text-align:justify;">
+<li><b>SCHED_OTHER:</b> El estándar de operación por turnos de tiempo compartido de las políticas.
+</li>
+<li><b>SCHED_BATCH:</b> Lo utiliza para realizar una ejecución “lote” es decir requiere que el programa, datos y órdenes al sistema operativo sean remitidos todos juntos al estilo de los procesos.
+</li>
+<li>
+<b>SCHED_IDLE:</b> La utiliza para ejecutar trabajos o aplicaciones de muy baja prioridad en un segundo plano.
+</li>
+</ul>
+
+<p style="text-align:justify;">Estados de un proceso en Android. El sistema operativo Android 8.0 utiliza estados de procesos para saber qué procesos eliminar primero ante un escenario para ello Android asigna prioridades a cada uno de los procesos utilizando el siguiente orden.<a href="http://www.jtech.ua.es/dadm/2011-2012/restringido/android-av/wholesite.pdf">[5]</a></p>
+
+<p style="text-align:justify;">Foreground Process: En este estado va la aplicación que contiene una actividad ejecutada en primer plano en la pantalla del usuario y con la que está interactuando en el momento.<a href="http://www.jtech.ua.es/dadm/2011-2012/restringido/android-av/wholesite.pdf">[5]</a></p>
+
+<ul style="text-align:justify;">
+<li><b>Visible Process:</b> Este proceso ocupa una actividad que no está ejecutándose en primer plano es decir el método pausa ha sido llamado por esta actividad.</li>
+<li><b>Service Process:</b> Estos procesos se inician cuando un service ha sido llamado.</li>
+<li><b>Background process:</b> Es un proceso que contiene una actividad que el usuario no puede verla y que ya no tiene demasiada importancia es de baja prioridad.</li>
+<li><b>Empty process:</b> Este es un estado de proceso que no está alojando ningún tipo de componente. La razón por lo que existe este estado es el de tener una caché disponible para la próxima aplicación que ejecute el usuario.</li>
+</ul>
+
+<p style="text-align:center;">Figura 6</p>
+<img src="https://raw.githubusercontent.com/martulioruiz/my_blog/main/docs/assets/processState2.jpeg" style="display: block; margin-left: auto; margin-right: auto; width: 50%;">
+<p style="text-align:center; "><i>Nota. Planificacion de procesos.
+</i></p>
+
+<br>
+<h3>Algoritmos de planificación</h3>
+<p style="text-align:justify;">En Android 9 básicamente se utilizan dos algoritmos de planificación que son el denominado SJF y el round robin:
+<a href="http://www.jtech.ua.es/dadm/2011-2012/restringido/android-av/wholesite.pdf">[5]</a></p>
+<ul style="text-align:justify;">
+<li><b>SJF:</b> Android 9 utiliza algoritmos de planificación SJF debido a que este algoritmo da Da prioridad a los procesos más cortos a la hora de ejecución y los va colocando en una cola, selecciona al proceso con el próximo tiempo de ejecución más corto y lo ejecuta hasta que este proceso termine.
+</li>
+<li>
+<b>Round Robin:</b> Este algoritmo también lo utiliza el Android 8 debido a que este proceso consiste en asignar un intervalo de tiempo de ejecución, a este intervalo se lo denomina cuanto, por lo cual, si el proceso agota su cuanto, este va a elegir otro proceso para que ocupe la CPU.
+</li>
+</ul>
+
+<br><br>
 <h2 style="text-align:center;">BIBLIOGRAFIAS</h2>
 1. Meike, G., & Schiefer, L. (2021).| Inside the Android OS.| Addison Wesley Professional.|<a href="https://www.oreilly.com/library/view/inside-the-android/9780134096377/">Enlace al libro</a>
 2. Overview of memory management. |(s. f.). Android Developers.|<a href="https://developer.android.com/topic/performance/memory-overview.">Enlace a la pagina</a> 
 3. Android Runtime (ART) and Dalvik.| (s. f.). Android Open Source Project.|<a href="https://source.android.com/devices/tech/dalvik">Enlace a la pagina</a>
-4. Debugging memory usage on Android.| Perfetto Tracing Docs.| (s. f.). Perfetto.|<a href="https://perfetto.dev/docs/case-studies/memory">Enlace a la pagina</a> 
+4. Debugging memory usage on Android.| Perfetto Tracing Docs.| (s. f.). Perfetto.|<a href="https://perfetto.dev/docs/case-studies/memory">Enlace a la pagina</a>
+5. Jtech.ua.es. (2019).|<a href="http://www.jtech.ua.es/dadm/2011-2012/restringido/android-av/wholesite.pdf">Enlace a la pagina</a>
+6. Android Developers. (2019).| Procesos y subprocesos  |  Android Developers.| <a href="https://developer.android.com/guide/components/processes-and-threads?hl=es-419">Enlace a la pagina</a>
+7. Tanenbaum A.| Sistemas Operativos Modernos 2009 3ra Ed.| Ámsterdam: Pearson Educación.| <a href="https://developer.android.com/guide/components/processes-and-threads?hl=es-419">Enlace a la pagina</a>
+8. Guías para desarrolladores | Desarrolladores de Android |. (2021). Android Developers. Geraadpleegd op 31 maart 2022.|<a href="https://developer.android.com/guide?hl=es">Enlace a la pagina</a>
+9. Carlos Escobar.| (2016, 12 april).| Sistema operativo Android: Caracteristicas y funcionalidades para dispositivos moviles.|<a href="https://core.ac.uk/download/pdf/71396792.pdf">Enlace a la pagina</a>  
+ 
+
+ 
 
 
