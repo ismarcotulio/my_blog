@@ -852,7 +852,7 @@ BOARD_KERNEL_CMDLINE += printk.devkmsg=on
 <img src="https://raw.githubusercontent.com/martulioruiz/my_blog/main/docs/assets/newDeviceLunch.png" style="display: block; margin-left: auto; margin-right: auto; width: 50%;">
 <p style="text-align:center; "><i>Nota. Dispositivo aosp_cf_marcotulio_os_x86_phone-userdebug disponible para ser compilado.</i></p>
 <p style="text-align:center;">Figura 14</p>
-<img src="https://raw.githubusercontent.com/martulioruiz/my_blog/main/docs/assets/newDeviceLunch.png" style="display: block; margin-left: auto; margin-right: auto; width: 50%;">
+<img src="https://raw.githubusercontent.com/martulioruiz/my_blog/main/docs/assets/newDeviceTarget.png" style="display: block; margin-left: auto; margin-right: auto; width: 50%;">
 <p style="text-align:center; "><i>Nota. Dispositivo aosp_cf_marcotulio_os_x86_phone-userdebug seleccionado para ser compilado.</i></p>
 <br>
 <h4>Probando dispositivo</h4>
