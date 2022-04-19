@@ -863,6 +863,80 @@ BOARD_KERNEL_CMDLINE += printk.devkmsg=on
 <p style="text-align:center; "><i>Nota. Verificando número de compilación y modelo del dispositivo propio.</i></p>
 
 <br><br>
+<h3>Creando distribución</h3>
+<p style="text-align:justify;">Una vez que tengamos nuestro dispositivo propio podremos agregar servicios y aplicaciones así como modificar interfaz, permisos y configuraciones, entre otros. En esta sección se muestran los pasos y definiciones para la creación de una distribución linux basada en el código AOSP con orientación a aplicaciones para la virtualización en dispositivos Android. </p>
+<br>
+<h4>Distribución y Personalización</h4>
+<p style="text-align:justify;">En la comunidad Android popularmente a las imágenes destinadas a ser flasheadas en dispositivos físicos se les suele llamar ROMs Personalizadas. El término ROM (Read-Only-Memory) en teoría de Sistemas Operativos hace referencia a una memoria que no puede ser modificada y cuyos datos o información es definida por el fabricante del dispositivo. En la mayoría de dispositivos Android (físicos), el sistema original como tal es compilado y copiado en una memoria ROM. Teniendo en cuenta que un Sistema Personalizado al ser flasheado en un dispositivo físico reemplaza al sistema original que se encuentra en la memoria ROM, por esa razón se le suele llamar popularmente como ROM personalizada. En nuestro caso, a pesar de que en efecto realizamos personalizaciones a una imagen genérica de android (GSI) y que esta podría ser flasheada en un dispositivo físico o virtual, consideramos más apropiado el termino distribución para referirnos al conjunto de imágenes resultantes de la compilación de nuestro dispositivo AOSP.</p>
+<p style="text-align:justify;">Una distribución de Linux es un sistema operativo compilado a partir de componentes desarrollados por varios proyectos y programadores de código abierto. Cada distribución incluye el kernel de Linux (la base del sistema operativo), las utilidades de shell de GNU (la interfaz de terminal y los comandos), el servidor X (para un escritorio gráfico), el entorno de escritorio, un sistema de administración de paquetes, un instalador y otros. servicios. Muchos componentes se desarrollan independientemente unos de otros y se distribuyen en forma de código fuente. Las distribuciones también incluyen un navegador de Internet, herramientas de administración y otro software como el hipervisor KVM. Una sola distribución de Linux puede contener miles de paquetes de software, utilidades y aplicaciones.
+
+Las distribuciones de Linux compilan código de proyectos de código abierto y lo combinan en un solo sistema operativo que se puede instalar y arrancar. Las distribuciones de Linux están disponibles para computadoras de escritorio, para servidores sin interfaz gráfica, para supercomputadoras, para dispositivos móviles y para usos especiales, como PC de cine en casa y sistemas integrados. Debido a que es un software de código abierto, cualquiera puede crear su propia distribución de Linux ensamblando a partir del código fuente o modificando una distribución existente. Actualmente, se mantienen activamente más de 300 distribuciones de Linux. <a href="https://www.suse.com/suse-defines/definition/linux-distribution/">[13]</a></p>
+<br>
+<h4>Agregando aplicaciones</h4>
+<p style="text-align:justify;">A continuación se mostrará como agregar aplicaciones al repositorio AOSP para que estas sean instaladas en el dispositivo durante el proceso de compilado. Debido a fines prácticos y demostrativos los pasos para la creación de servicios, modificación de permisos e interfaz serán objetivo de futuros artículos. Teniendo en cuenta que la temática de la distribución es orientada a la virtualización, con este propósito se agregan las siguientes aplicaciones:</p>
+<ol>
+<li style="text-align:justify;"><b>Brave Browser:</b> Brave es un navegador web de código abierto basado en Chromium, creado por la compañía Brave Software</li>
+<li style="text-align:justify;"><b>Andronix:</b> Andronix permite instalar un sistema Linux en el dispositivo Android sin root</li>
+<li style="text-align:justify;"><b>Termux:</b> Termux es un emulador de terminal de Android y una aplicación de entorno Linux que funciona directamente sin necesidad de enraizamiento o configuración.
+
+</li>
+<li style="text-align:justify;"><b>ES Explorer:</b> ES File Explorer es un administrador / explorador de archivos diseñado por ES Global, una subsidiaria de DO Global, para dispositivos Android.</li>
+<li style="text-align:justify;"><b>Real VNC Viewer:</b> VNC Viewer convierte su teléfono en un escritorio remoto, brindándole acceso instantáneo a sus computadoras Mac, Windows y Linux</li>
+<li style="text-align:justify;"><b>Net Hunter Store:</b> La tienda de aplicaciones Kali NetHunter es un catálogo instalable de aplicaciones de Android para pruebas de penetración y análisis forense.</li>
+<li style="text-align:justify;"><b>VMOS:</b> VMOS es un software de aplicación basado en máquina virtual. VMOS se puede instalar en forma de una aplicación normal para el sistema Linux o Android a través de la tecnología VM.</li>
+<li style="text-align:justify;"><b>XServer:</b> Servidor X Window System / X11 para Android, completo y totalmente funcional, con servidor PulseAudio incluido</li>
+<li style="text-align:justify;"><b>Alpine Term:</b> Alpine Term es una aplicación de terminal y entorno Linux para Android.</li>
+<li style="text-align:justify;"><b>Caffeine:</b> Caffeine es una curiosa aplicación gratuita para dispositivos Android que impide que nuestro móvil o tableta entre en estado de “sueño”.</li>
+</ol>
+<p style="text-align:justify;">Las aplicaciones que nos ofrece por defecto el repositorio AOSP se pueden encontrar en la ruta <code>aosp/packages/apps/</code>. Las aplicaciones pueden ser incluidas en dos formatos: App Bundle o directamente como un APK. Un Android App Bundle es el formato oficial (con la extensión .aab) en que se sube la aplicación a Google Play. Los paquetes de aplicaciones son objetos binarios firmados que organizan el código y los recursos de la app en módulos. El código y los recursos de cada módulo se organizan de manera similar al contenido de un APK, en donde cada uno de los módulos puede generarse como un APK independiente. En nuestro caso utilizaremos un único APK por aplicación.</p>
+<p style="text-align:justify;">Para agregar nuestras propias aplicaciones debemos crear una carpeta por aplicación en el directorio <code>aosp/packages/apps/</code> y dentro de ella debemos copiar el archivo .apk junto con un archivo makefile llamado <code>Android.mk</code>; En este archivo se realizan las definiciones necesarias para que se instale la aplicación durante el proceso de compilado.</p>
+<p style="text-align:justify;">Otra alternativa para agregar aplicaciones (la cual es la que se utiliza en este proyecto) y realizar otras modificaciones al sistema sin alterar las carpetas originales del repositorio AOSP es haciendo uso de <code>overlays</code>. Las superposiciones (overlays) funcionan asignando recursos definidos en el paquete de superposición a recursos definidos en el paquete de destino. Cuando una aplicación intenta resolver el valor de un recurso en el paquete de destino, en su lugar, se devuelve el valor del recurso superpuesto al que está asignado el recurso de destino. Es decir, si nosotros agregamos la aplicacion Google Chrome Browser a la ruta <code>aosp/packages/apps/</code> y también la agregamos con otras configuraciones a la ruta <code>device-name/overlay/packages/apps/</code>, se instalará la que se encuentra en la carpeta overlay. Para que nuestro dispositivo reconozca la carpeta overlay, esta se deberá definir en el archivo <code>device.mk</code> de la siguiente forma:
+</p>
+
+```makefile
+PRODUCT_PACKAGE_OVERLAYS := device/marco_tulio/MarcoTulioOS/vsoc_x86/phone/overlay
+```
+<p style="text-align:justify;">Una vez definida la carpeta overlay, podemos agregar nuestras aplicaciones en una carpeta independiente al repositorio AOSP. Suponiendo que queremos agregar la aplicación Termux: Lo primero que debemos hacer es descargar el archivo apk y copiarlo a una carpeta en la ruta <code>overlay/packages/apps/</code> por ejemplo <code>device/marco_tulio/MarcoTulioOS/vsoc_x86/phone/overlay/packages/apps/Termux</code>; Luego deberemos crear el correspondiente archivo <code>Android.mk</code> el cual en este caso tendría la siguiente estructura:
+</p>
+
+```makefile
+LOCAL_PATH := $(call my-dir)
+
+my_archs := arm x86 arm64
+my_src_arch := $(call get-prebuilt-src-arch, $(my_archs))
+
+include $(CLEAR_VARS)
+LOCAL_MODULE := Termux
+LOCAL_MODULE_CLASS := APPS
+LOCAL_MODULE_TAGS := optional
+LOCAL_BUILT_MODULE_STEM := package.apk
+LOCAL_MODULE_SUFFIX := $(COMMON_ANDROID_PACKAGE_SUFFIX)
+LOCAL_CERTIFICATE := PRESIGNED
+LOCAL_SRC_FILES := Termux.apk
+
+LOCAL_PREBUILT_JNI_LIBS := \
+  @lib/x86/libtermux-bootstrap.so \
+  @lib/x86/libtermux.so
+
+LOCAL_MODULE_TARGET_ARCH := $(my_src_arch)
+
+include $(BUILD_PREBUILT)
+```
+<p style="text-align:justify;">Existen herramientas que nos permiten generar estos archivos <code>Android.mk</code> dependiendo del apk, como por ejemplo <a href="https://github.com/northbright/genandroidmk">genandroidmk</a>. Es importante mencionar que el archivo .apk debe tener soporte para la misma arquitectura del dispositivo físico o virtual (en nuestro caso x86).</p>
+<p style="text-align:justify;">Finalmente, debemos definir la aplicación en el dispositivo. Para ello nos vamos al archivo <code>device.mk</code> donde definimos la carpeta overlay y agregamos lo siguiente:.</p>
+
+```makefile
+PRODUCT_PACKAGES += \
+    Termux
+```
+<p style="text-align:center;">Figura 16</p>
+<img src="https://raw.githubusercontent.com/martulioruiz/my_blog/main/docs/assets/listApps.png" style="display: block; margin-left: auto; margin-right: auto; width: 50%;">
+<p style="text-align:center; "><i>Nota. Menú de aplicaciones de la distribución.</i></p>
+<p style="text-align:center;">Figura 17</p>
+<img src="https://raw.githubusercontent.com/martulioruiz/my_blog/main/docs/assets/termuxAsSystem.png" style="display: block; margin-left: auto; margin-right: auto; width: 50%;">
+<p style="text-align:center; "><i>Nota. Termux instalada como aplicación de sistema.</i></p>
+
+<br><br>
 <h2 style="text-align:center;">BIBLIOGRAFIAS</h2>
 1. Set up for Android Development. | (s. f.). Android Open Source Project. |<a href="https://source.android.com/setup/intro">Enlace a la pagina</a>
 2. Adding a New Device.|(s. f.). Android Open Source Project.|<a href="https://source.android.com/setup/develop/new-device#build-layers">Enlace a la pagina</a> 
@@ -876,4 +950,5 @@ BOARD_KERNEL_CMDLINE += printk.devkmsg=on
 10. device/google/cuttlefish | Git at Google.|<a href="https://android.googlesource.com/device/google/cuttlefish/">Enlace a la pagina</a>  
 11. android-cuttlefish/BUILDING.md at main | google/android-cuttlefish.| (s. f.). GitHub.|<a href="https://github.com/google/android-cuttlefish/blob/main/BUILDING.md">Enlace a la pagina</a>
 12. Ye, R. (2017).| Android System Programming.| Packt Publishing.| <a href="https://www.packtpub.com/product/android-system-programming/9781787125360">Enlace a la pagina</a>
+13. What is a Linux Distribution? | Answer from. (s. f.). SUSE Defines.| <a href="https://www.suse.com/suse-defines/definition/linux-distribution/">Enlace a la pagina</a>
 
