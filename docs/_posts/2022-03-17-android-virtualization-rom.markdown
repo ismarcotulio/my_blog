@@ -935,6 +935,99 @@ PRODUCT_PACKAGES += \
 <p style="text-align:center;">Figura 17</p>
 <img src="https://raw.githubusercontent.com/martulioruiz/my_blog/main/docs/assets/termuxAsSystem.png" style="display: block; margin-left: auto; margin-right: auto; width: 50%;">
 <p style="text-align:center; "><i>Nota. Termux instalada como aplicación de sistema.</i></p>
+<br><br>
+
+<h3>Caso de Uso con Virtualizacion Anidada</h3>
+<p style="text-align:justify;">Para demostrar la potencia, capacidad y variedad de posibilidades que ofrece nuestra distribucion y el dispositivo virtual de Android en general, se propuso como meta comprobar si es posible: Correr otros Sistemas Operativos en Android utilizando tecnologias de virtualizacion e iniciar servicios que usualmente se utilizan en entornos de escritorio. Para lograr la meta el equipo de desarrollo llego a la conclusion de que el dispositivo virtual de Android Cuttlefish debia tener soporte para la virtualizacion anidada, esto debido a que como tal el dispositivo virtual es una Maquina Virtual cuyo hardware es emulado por QEMU o CrosVM. 
+</p>
+<p style="text-align:justify;">Segun Google Cloud <a href="https://cloud.google.com/compute/docs/instances/nested-virtualization/overview">[14]</a> La virtualización anidada permite ejecutar instancias de máquinas virtuales (VM) dentro de otras VM para crear entornos de virtualización propios. Para admitir la virtualización anidada, Compute Engine por ejemplo agrega instrucciones Intel VT-x a las máquinas virtuales, de modo que cuando se crea una máquina virtual, el hipervisor que ya está en esa máquina virtual puede ejecutar máquinas virtuales adicionales. Las máquinas virtuales de Compute Engine se ejecutan en un host físico que tiene el hipervisor basado en KVM reforzado con seguridad de Google. Con la virtualización anidada, el host físico y su hipervisor son el entorno de nivel 0 (L0). El entorno L0 puede alojar varias máquinas virtuales de nivel 1 (L1). En cada máquina virtual L1 hay otro hipervisor, que se utiliza para instalar las máquinas virtuales de nivel 2 (L2). En nuestro caso el entorno L0 es el dispositivo virtual cuttlefish de Android. Teniendo en cuenta que el Sistema Android esta basado en el Kernel de Linux, se puede concluir que este dispone del hipervisor KVM al igual que la mayoria de distribuciones Linux actuales. El enterno L1 podria ser una distribucion linux y el entorno L2 un contenedor virtual que permita la implementacion de algun servicio.</p>
+
+<p style="text-align:justify;">KVM (Máquina Virtual basada en Kernel) es una solución de virtualización completa para Linux en hardware x86 que contiene extensiones de virtualización (Intel VT o AMD-V). Consiste en un módulo de kernel cargable, kvm.ko, que proporciona la infraestructura de virtualización central y un módulo específico del procesador, kvm-intel.ko o kvm-amd.ko. Con KVM, se pueden ejecutar varias máquinas virtuales que ejecutan imágenes de Linux o Windows sin modificar. Cada máquina virtual tiene un hardware virtualizado privado: una tarjeta de red, un disco, un adaptador de gráficos, etc. KVM es un software de código abierto. El componente kernel de KVM se incluye en la línea principal de Linux, a partir del 2.6.20. El componente de espacio de usuario de KVM se incluye en la línea principal QEMU, a partir de 1.3. <a href="https://www.linux-kvm.org/page/Main_Page">[15]</a>
+ </p>
+ <br>
+ <h4>Enunciado y procedimiento</h4>
+<p style="text-align:justify;">A continuacion se muestran los pasos realizados para crear una Maquina Virtual con la distribucion Alpine Linux en nuestro dispositivo virtual Cuttlefish utilizando QEMU. De la misma forma en la Maquina Virtual Alpine Linux se instalara docker el cual sera utilizado para crear un contenedor con un servidor que permita la implementacion de un servicio dentro del dispositivo Android (En nuestro caso un servidor de Jekyll para la implementacion de un blog). Es importante mencionar que muchos de estos pasos son de conocimiento gracias al aporte del usuario en youtube Motoots. <a href="https://www.youtube.com/watch?v=RL96VSKzAQo">[16]</a></p>
+
+<p style="text-align:justify;">Lo primero que debemos hacer es asegurarnos de tener instalado Termux. En nuestro caso Termux forma parte de las aplicaciones del sistema en la distribucion. Una vez en termux actualizamos el gestor de paquetes:</p>
+
+```bash
+pkg update && pkg upgrade
+```
+<p style="text-align:justify;">Luego instalamos QEMU utilizando el siguiente comando:</p>
+```bash
+pkg install qemu-system-x86-64-headless qemu-utils
+```
+<p style="text-align:justify;">Instalamos wget y obtenemos Alpine Linux:</p>
+```bash
+pkg install wget
+```
+```bash
+mkdir qemu
+```
+```bash
+cd qemu
+```
+```bash
+wget https://dl-cdn.alpinelinux.org/alpine/v3.13/releases/x86_64/alpine-virt-3.13.2-x86_64.iso
+```
+<p style="text-align:justify;">Despues creamos una imagen qemu para la instalacion:</p>
+```bash
+qemu-img create -f qcow2 alpine.qcow2 7G
+```
+<p style="text-align:justify;">Arrancamos la imagen de instalacion con el siguiente comando:</p>
+```bash
+qemu-system-x86_64 -smp 2 -m 2048 \
+  -drive file=alpine.qcow2,if=virtio \
+  -netdev user,id=n1,hostfwd=tcp::6379-:6379,hostfwd=tcp::9000-:9000 \
+  -device virtio-net,netdev=n1 \
+  -cdrom alpine-virt-3.13.2-x86_64.iso -boot d \
+  -nographic
+```
+<p style="text-align:justify;">Nos logueamos como usuario root y ejecutamos el comando <code>setup-alpine</code>. Realizamos la respectiva configuracion por defecto para instalar alpine linux. Una vez que hayamos terminado el proceso de configuracion, apagamos la maquina virtual"</p>
+```bash
+poweroff
+```
+<p style="text-align:justify;">Despues, volvemos a correr linux pero sin la imagen de instalacion:</p>
+```bash
+qemu-system-x86_64 -smp 2 -m 2048 \
+  -drive file=alpine.qcow2,if=virtio \
+  -netdev user,id=n1,hostfwd=tcp::6379-:6379,hostfwd=tcp::9000-:9000 \
+  -device virtio-net,netdev=n1 \
+  -nographic
+```
+<p style="text-align:justify;">Hasta este punto ya tendremos lista nuestra Maquina Virtual con Alpine Linux.</p>
+
+<p style="text-align:center;">Figura 18</p>
+<img src="https://raw.githubusercontent.com/martulioruiz/my_blog/main/docs/assets/neofetch.png" style="display: block; margin-left: auto; margin-right: auto; width: 50%;">
+<p style="text-align:center; "><i>Nota. Maquina Virtual Alpine Linux creada con QEMU en Termux.</i></p>
+
+<p style="text-align:justify;">Instalamos docker e iniciamos el servicio:</p>
+
+```shell
+apk add docker
+```
+```shell
+service docker start
+```
+<p style="text-align:center;">Figura 19</p>
+<img src="https://raw.githubusercontent.com/martulioruiz/my_blog/main/docs/assets/dockerStarted.png" style="display: block; margin-left: auto; margin-right: auto; width: 50%;">
+<p style="text-align:center; "><i>Nota. Servicio de Docker activo en VM Alpine Linux.</i></p>
+
+<p style="text-align:justify;">Creamos un contenedor en Docker con un servicio de prueba. En nuestro caso, utilizamos un archivo de procesamiento por lotes que contiene todos los comandos necesarios para crear un contenedor basado en Ubuntu el cual implementara automaticamente un servidor de blog Jekyll.</p>
+
+<p style="text-align:center;">Figura 20</p>
+<img src="https://raw.githubusercontent.com/martulioruiz/my_blog/main/docs/assets/setupBlog.png" style="display: block; margin-left: auto; margin-right: auto; width: 50%;">
+<p style="text-align:center; "><i>Nota. Creando contenedor Ubuntu con servidor Jekyll.</i></p>
+
+<p style="text-align:center;">Figura 21</p>
+<img src="https://raw.githubusercontent.com/martulioruiz/my_blog/main/docs/assets/setupBlog.png" style="display: block; margin-left: auto; margin-right: auto; width: 50%;">
+<p style="text-align:center; "><i>Nota. Servidor Jekyll corriendo en 0.0.0.0:9000.</i></p>
+
+<p style="text-align:justify;">Para finalizar comprobamos que nuestro blog (o servicio de prueba) esta corriendo sin problemas en la direccion <code>0.0.0.0:9000/my_blog</code> con el navegador Brave.</p>
+
+<p style="text-align:center;">Figura 22</p>
+<img src="https://raw.githubusercontent.com/martulioruiz/my_blog/main/docs/assets/showBlog.png" style="display: block; margin-left: auto; margin-right: auto; width: 50%;">
+<p style="text-align:center; "><i>Nota. Servidor Jekyll corriendo en 0.0.0.0:9000.</i></p>
 
 <br><br>
 <h2 style="text-align:center;">BIBLIOGRAFIAS</h2>
@@ -951,4 +1044,6 @@ PRODUCT_PACKAGES += \
 11. android-cuttlefish/BUILDING.md at main | google/android-cuttlefish.| (s. f.). GitHub.|<a href="https://github.com/google/android-cuttlefish/blob/main/BUILDING.md">Enlace a la pagina</a>
 12. Ye, R. (2017).| Android System Programming.| Packt Publishing.| <a href="https://www.packtpub.com/product/android-system-programming/9781787125360">Enlace a la pagina</a>
 13. What is a Linux Distribution? | Answer from. (s. f.). SUSE Defines.| <a href="https://www.suse.com/suse-defines/definition/linux-distribution/">Enlace a la pagina</a>
-
+14. About nested virtualization | Compute Engine Documentation |. (s. f.). Google Cloud.| <a href="https://cloud.google.com/compute/docs/instances/nested-virtualization/overview">Enlace a la pagina</a>
+15. KVM. (s. f.).| KVM Official Page.|<a href="https://www.linux-kvm.org/page/Main_Page">Enlace a la pagina</a>
+16. Running Docker using QEMU on an Android Device.| (2021, 16 marzo).| [Vídeo]. YouTube.|<a href="https://www.youtube.com/watch?v=RL96VSKzAQo">Enlace al video</a>   
