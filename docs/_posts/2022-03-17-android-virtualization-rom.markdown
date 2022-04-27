@@ -1030,6 +1030,10 @@ service docker start
 <p style="text-align:center; "><i>Nota. Servidor Jekyll corriendo en 0.0.0.0:9000.</i></p>
 
 <br><br>
+<h2 style="text-align:center;">AGRADECIMIENTOS</h2>
+<p style="text-align:justify;">Un especial agradecimiento al Ingeniero Constantino Sorto Reyes, catedrático de la Universidad Nacional Autónoma de Honduras, por brindarnos el espacio y consejos que fueron de ayuda para desarrollar con éxito esta investigación.
+</p>
+<br><br>
 <h2 style="text-align:center;">BIBLIOGRAFIAS</h2>
 1. Set up for Android Development. | (s. f.). Android Open Source Project. |<a href="https://source.android.com/setup/intro">Enlace a la pagina</a>
 2. Adding a New Device.|(s. f.). Android Open Source Project.|<a href="https://source.android.com/setup/develop/new-device#build-layers">Enlace a la página</a> 
